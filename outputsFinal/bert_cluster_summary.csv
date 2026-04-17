@@ -1,0 +1,5 @@
+cluster_id,cluster_size,top_terms,inferred_theme
+3,3160,"merchants, decay, commodities, decay target, sea, ship, english, country, hath, east",geography_and_state
+2,2105,"colony target, colony, english, foreign, east, merchants, hath, foreign target, commodities, men",commercial_exchange
+1,1310,"foreign, citie, foreign target, consumption, target merchandise, merchandise, target consumption, seated, target life, generall",commercial_exchange
+0,1188,"ship, country, portugal, bring, merchant, unto, use, english, town, company",commercial_exchange

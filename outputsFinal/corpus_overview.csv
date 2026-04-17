@@ -1,0 +1,2 @@
+selected_word,readable_documents,total_tokens,total_occurrences,documents_with_word,unit_of_analysis
+trade,571,59105952,7763,341,Sentence with target word plus one sentence before and after

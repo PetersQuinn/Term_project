@@ -1,0 +1,51 @@
+{
+  "selected_word": "trade",
+  "labels": [
+    "commercial_exchange",
+    "occupation_or_craft"
+  ],
+  "accuracy": 0.736,
+  "macro_f1": 0.7359323986940657,
+  "classification_report": {
+    "commercial_exchange": {
+      "precision": 0.75,
+      "recall": 0.7142857142857143,
+      "f1-score": 0.7317073170731707,
+      "support": 63.0
+    },
+    "occupation_or_craft": {
+      "precision": 0.7230769230769231,
+      "recall": 0.7580645161290323,
+      "f1-score": 0.7401574803149606,
+      "support": 62.0
+    },
+    "accuracy": 0.736,
+    "macro avg": {
+      "precision": 0.7365384615384616,
+      "recall": 0.7361751152073732,
+      "f1-score": 0.7359323986940657,
+      "support": 125.0
+    },
+    "weighted avg": {
+      "precision": 0.7366461538461537,
+      "recall": 0.736,
+      "f1-score": 0.7358985980410985,
+      "support": 125.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      45,
+      18
+    ],
+    [
+      15,
+      47
+    ]
+  ],
+  "weak_label_counts": {
+    "commercial_exchange": 3921,
+    "occupation_or_craft": 499
+  },
+  "balanced_training_examples_per_class": 250
+}
