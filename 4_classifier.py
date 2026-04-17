@@ -206,44 +206,12 @@ def plot_top_features(model: LogisticRegression, vectorizer: TfidfVectorizer) ->
 
     return feature_frame
 
-
-def build_notes(selected_word: str, scheme: dict, metrics: dict, counts: pd.Series) -> str:
-    label_lines = [
-        f"- `{label}`: {int(counts[label])} weakly labeled examples"
-        for label in counts.index
-    ]
-    definition_lines = [
-        f"- `{label}`: {config['description']}"
-        for label, config in scheme.items()
-    ]
-    return "\n".join(
-        [
-            "# Classifier Notes",
-            "",
-            f"Selected concept: **{selected_word}**",
-            "",
-            "Label definitions:",
-            *definition_lines,
-            "",
-            "Weak-label pool:",
-            *label_lines,
-            "",
-            "Evaluation:",
-            f"- Accuracy: {metrics['accuracy']:.3f}",
-            f"- Macro F1: {metrics['macro_f1']:.3f}",
-            "- The classifier uses TF-IDF features from contexts where the target word and direct rule keywords are masked, which keeps the task from collapsing into a simple keyword lookup.",
-            "- Because the training labels are weakly inferred from context cues, the reported scores are useful but not the same as a fully hand-labeled benchmark.",
-        ]
-    )
-
-
 def main() -> None:
     ensure_output_dirs()
     selected_word = load_selected_word()
     if selected_word not in LABEL_SCHEMES:
         raise ValueError(
-            f"No classifier label scheme is defined for '{selected_word}'. "
-            "Add one to LABEL_SCHEMES in 4_classifier.py if you change the selected word."
+            f"No classifier label scheme"
         )
 
     scheme = LABEL_SCHEMES[selected_word]
@@ -334,13 +302,6 @@ def main() -> None:
     errors.to_csv(OUTPUT_DIR / "classifier_error_examples.csv", index=False)
     feature_frame.to_csv(OUTPUT_DIR / "top_features.csv", index=False)
     (OUTPUT_DIR / "classifier_metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
-
-    notes = build_notes(selected_word, scheme, metrics, counts)
-    (OUTPUT_DIR / "classifier_notes.md").write_text(notes, encoding="utf-8")
-
-    print(f"Trained classifier for '{selected_word}' with {sample_size * len(counts)} balanced weak labels.")
-    print(f"Saved predictions to {OUTPUT_DIR / 'classifier_predictions.csv'}")
-
 
 if __name__ == "__main__":
     main()

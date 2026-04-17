@@ -61,36 +61,6 @@ def plot_entity_outputs(type_counts: pd.DataFrame, focus_counts: pd.DataFrame) -
     plt.close()
 
 
-def build_notes(selected_word: str, focus_labels: list[str], type_counts: pd.DataFrame, focus_counts: pd.DataFrame) -> str:
-    label_lines = [
-        f"- `{row.entity_label}`: {int(row.count)}"
-        for row in type_counts.head(8).itertuples(index=False)
-    ]
-    focus_lines = [
-        f"- `{row.entity_text}` ({row.entity_label}): {int(row.count)}"
-        for row in focus_counts.head(10).itertuples(index=False)
-    ]
-
-    return "\n".join(
-        [
-            "# NER Notes",
-            "",
-            f"Selected concept: **{selected_word}**",
-            f"Focus entity labels: {', '.join(focus_labels)}",
-            "",
-            "Overall entity labels:",
-            *label_lines,
-            "",
-            "Most common focus entities:",
-            *focus_lines,
-            "",
-            "Interpretive take:",
-            f"- The chosen focus labels match the most useful context around `{selected_word}` in this corpus, especially where the concept is tied to places, institutions, or named actors.",
-            "- Historical spelling and OCR noise do limit spaCy's recall, so the tables are best treated as directional evidence rather than a complete census of named entities.",
-        ]
-    )
-
-
 def main() -> None:
     ensure_output_dirs()
     selected_word = load_selected_word()
@@ -151,12 +121,6 @@ def main() -> None:
     focus_counts.to_csv(OUTPUT_DIR / "ner_focus_entities.csv", index=False)
     cooccurrence_examples.to_csv(OUTPUT_DIR / "ner_cooccurrence_examples.csv", index=False)
     plot_entity_outputs(type_counts, focus_counts)
-
-    notes = build_notes(selected_word, focus_labels, type_counts, focus_counts)
-    (OUTPUT_DIR / "ner_notes.md").write_text(notes, encoding="utf-8")
-
-    print(f"Ran spaCy NER on {len(contexts)} unique contexts.")
-    print(f"Saved focus entity table to {OUTPUT_DIR / 'ner_focus_entities.csv'}")
 
 
 if __name__ == "__main__":

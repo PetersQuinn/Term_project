@@ -320,38 +320,6 @@ def plot_clusters(frame: pd.DataFrame, summary: pd.DataFrame) -> None:
     plt.close()
 
 
-def build_notes(selected_word: str, summary: pd.DataFrame) -> str:
-    lines = [
-        f"- Cluster {int(row.cluster_id)} ({row.inferred_theme}): {int(row.cluster_size)} contexts; top terms {row.top_terms}"
-        for row in summary.itertuples(index=False)
-    ]
-    themes = set(summary["inferred_theme"])
-    if selected_word == "trade" and "occupation_or_craft" not in themes:
-        interpretation_line = (
-            "- In this corpus, the unsupervised BERT clusters mostly divide the dominant commercial use of `trade` into smaller variants such as foreign trade, shipping, and merchant-centered discussion. The occupation/craft sense becomes clearer in the supervised classifier than in the unsupervised clusters."
-        )
-    else:
-        interpretation_line = (
-            "- The clusters show that the concept does not behave as a single fixed word across the corpus; instead, the BERT space separates recurring contextual uses that can be interpreted with close reading."
-        )
-    return "\n".join(
-        [
-            "# BERT Notes",
-            "",
-            f"Selected concept: **{selected_word}**",
-            "",
-            "Cluster summary:",
-            *lines,
-            "",
-            "Interpretive take:",
-            "- The clusters are based on token-level contextual embeddings for the target word rather than a plain sentence embedding, so they reflect how the concept shifts across local usage.",
-            "- The 2D figure uses PCA instead of UMAP because it is much faster and more stable on this local CPU setup.",
-            interpretation_line,
-            "- The cluster themes are heuristic labels inferred from top context terms, which makes them useful for review notes but not a substitute for close reading.",
-        ]
-    )
-
-
 def main() -> None:
     ensure_output_dirs()
     selected_word = load_selected_word()
@@ -397,12 +365,6 @@ def main() -> None:
     np.save(OUTPUT_DIR / "bert_target_embeddings.npy", embeddings)
 
     plot_clusters(cluster_frame, summary)
-    notes = build_notes(selected_word, summary)
-    (OUTPUT_DIR / "bert_notes.md").write_text(notes, encoding="utf-8")
-
-    print(f"Saved BERT cluster assignments to {OUTPUT_DIR / 'bert_cluster_assignments.csv'}")
-    print(f"Selected {best_k} clusters using silhouette score.")
-
 
 if __name__ == "__main__":
     main()

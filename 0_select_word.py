@@ -488,45 +488,6 @@ def plot_candidate_scores(frame: pd.DataFrame) -> None:
     plt.close()
 
 
-def build_summary(frame: pd.DataFrame, examples: pd.DataFrame, recommended_word: str) -> str:
-    top_rows = frame.head(10)
-    recommended = frame.loc[frame["word"] == recommended_word].iloc[0]
-    example_lines = []
-    for _, row in examples[examples["word"] == recommended_word].head(4).iterrows():
-        snippet = row["context"][:240].strip()
-        example_lines.append(f"- `{row['source_file']}`: {snippet}...")
-
-    shortlist_lines = []
-    for _, row in top_rows.iterrows():
-        shortlist_lines.append(
-            f"- `{row['word']}`: {row['occurrences']} occurrences across {row['document_count']} documents; domains {row['top_domains'] or 'mixed'}."
-        )
-
-    return "\n".join(
-        [
-            "# Selected Word Summary",
-            "",
-            f"Recommended concept: **{recommended_word}**",
-            "",
-            "Why this word rose to the top:",
-            f"- It appears {int(recommended['occurrences'])} times across {int(recommended['document_count'])} different documents.",
-            f"- Its local contexts show strong variation ({recommended['neighbor_entropy']:.2f} neighbor entropy; {int(recommended['unique_neighbors'])} unique nearby tokens).",
-            f"- It has good NER potential for this corpus ({recommended['avg_capital_hits']:.2f} capitalized tokens near the word, on average).",
-            f"- The sampled contexts span multiple usable domains: {recommended['top_domains']}.",
-            "- It is frequent enough for clustering and classification but still manageable for an all-occurrences pipeline.",
-            "",
-            "Top shortlist:",
-            *shortlist_lines,
-            "",
-            f"Representative contexts for `{recommended_word}`:",
-            *example_lines,
-            "",
-            "Selection note:",
-            f"- The script keeps the shortlist data-driven, but it prefers words that look practical for the full assignment pipeline. `{recommended_word}` stands out because it supports named-entity context, BERT clustering, and at least two defensible classifier labels.",
-        ]
-    )
-
-
 def main() -> None:
     random.seed(RANDOM_SEED)
     ensure_output_dirs()
@@ -545,22 +506,6 @@ def main() -> None:
     scored_frame.to_csv(OUTPUT_DIR / "candidate_words.csv", index=False)
     examples_frame.to_csv(OUTPUT_DIR / "candidate_word_examples.csv", index=False)
     plot_candidate_scores(scored_frame)
-
-    summary = build_summary(scored_frame, examples_frame, recommended_word)
-    (OUTPUT_DIR / "selected_word_summary.md").write_text(summary, encoding="utf-8")
-
-    selected_payload = {
-        "selected_word": recommended_word,
-        "selection_script": "0_select_word.py",
-        "selection_date": pd.Timestamp.now().isoformat(),
-        "top_candidates": scored_frame.head(10)["word"].tolist(),
-    }
-    (OUTPUT_DIR / "selected_word.json").write_text(json.dumps(selected_payload, indent=2), encoding="utf-8")
-
-    print(f"Reviewed {len(paths)} documents.")
-    print(f"Saved candidate shortlist to {OUTPUT_DIR / 'candidate_words.csv'}")
-    print(f"Recommended concept word: {recommended_word}")
-
 
 if __name__ == "__main__":
     main()

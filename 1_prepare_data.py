@@ -71,45 +71,6 @@ def plot_distribution(distribution: pd.DataFrame, word: str) -> None:
     plt.close()
 
 
-def build_notes(corpus_overview: pd.DataFrame, distribution: pd.DataFrame, examples: pd.DataFrame, word: str) -> str:
-    summary = corpus_overview.iloc[0]
-    top_docs = distribution.head(5)
-    doc_lines = [
-        f"- `{row.source_file}`: {int(row.occurrence_count)} occurrences"
-        for row in top_docs.itertuples(index=False)
-    ]
-    example_lines = [
-        f"- `{row.source_file}`: {row.context[:240]}..."
-        for row in examples.head(6).itertuples(index=False)
-    ]
-
-    return "\n".join(
-        [
-            "# Data Preparation Notes",
-            "",
-            f"Selected concept: **{word}**",
-            "",
-            "Unit of analysis:",
-            "- The sentence containing the target word, plus the sentence before and after when available.",
-            "- Very long OCR-style sentences are chunked to keep contexts interpretable and BERT-friendly.",
-            "",
-            "Corpus snapshot:",
-            f"- Readable documents: {int(summary['readable_documents'])}",
-            f"- Total tokens (rough count): {int(summary['total_tokens'])}",
-            f"- Total occurrences of `{word}`: {int(summary['total_occurrences'])}",
-            f"- Documents containing `{word}`: {int(summary['documents_with_word'])}",
-            "",
-            "Documents with the most occurrences:",
-            *doc_lines,
-            "",
-            "Quick reading sample:",
-            *example_lines,
-            "",
-            "Initial pattern:",
-            f"- `{word}` appears broadly across the corpus rather than clustering in only a few files, which makes it a strong candidate for downstream NER, embedding, and classification work.",
-        ]
-    )
-
 
 def main() -> None:
     ensure_output_dirs()
@@ -200,12 +161,6 @@ def main() -> None:
     examples.to_csv(OUTPUT_DIR / "occurrence_examples.csv", index=False)
     distribution.to_csv(OUTPUT_DIR / "document_occurrence_distribution.csv", index=False)
     plot_distribution(distribution, word)
-
-    notes = build_notes(corpus_overview, distribution, examples, word)
-    (OUTPUT_DIR / "prepare_data_notes.md").write_text(notes, encoding="utf-8")
-
-    print(f"Prepared {len(occurrences)} occurrence rows for '{word}'.")
-    print(f"Saved occurrence table to {OUTPUT_DIR / 'occurrences.csv'}")
 
 
 if __name__ == "__main__":
